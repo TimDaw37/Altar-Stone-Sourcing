@@ -16,11 +16,21 @@ Not scored: the Lanark Basin, the ORS between the Midland Valley and the Welsh B
 
 Strict and relaxed modes, presets and group toggles are described in the "How to read this" panel and the Sources panel in the map.
 
+## Finding places
+
+The search box on the map accepts a map place or site name (for example "Fintona" or "Sarclet"), an Ordnance Survey grid reference (for example HY229241), latitude and longitude (for example 51.18, -1.83), or a UK or Irish place name. Place names that are not on the map are looked up with OpenStreetMap Nominatim, so the text typed is sent to that service only in that case.
+
+## Optional overlays
+
+- BGS 625k Old Red Sandstone underlay, the Latheron–Niandt cool sliver (schematic) and an Irish ORS desk screen.
+- Tellus Northern Ireland stream-sediment Ba at or above 1025 ppm (502 samples): regional stream-sediment XRF, not rock, and not lithology-specific. Contains Geological Survey of Northern Ireland data, Open Government Licence v3.0 (https://www.opendatani.gov.uk/dataset/gsni-tellus-regional-stream-sediments).
+
 ## Files
 
 - `index.html` – the map (data embedded).
 - `places-0/1/2.json`, `meta.json` – the same data split into plain JSON.
 - `ors_bgs_625k.js`, `ors_bgs_625k.geojson` – Old Red Sandstone underlay derived from the BGS Geology 625k dataset.
+- `tellus_ni_ba.js` – Tellus Northern Ireland stream-sediment samples with Ba at or above 1025 ppm.
 
 ## Main sources
 
