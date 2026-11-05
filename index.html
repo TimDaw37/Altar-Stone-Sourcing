@@ -876,7 +876,14 @@ const esriTopo = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/servic
 const carto = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {attribution:'© OpenStreetMap, © CARTO', subdomains:'abcd', maxZoom:20});
 const esriImg = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {attribution:'Tiles © Esri', maxZoom:19});
 esriTopo.addTo(map);
-L.control.layers({'Esri topo':esriTopo, 'Carto light':carto, 'Esri imagery':esriImg}, {}, {position:'topright'}).addTo(map);
+const bgsAttr = 'Geology: Contains British Geological Survey materials © UKRI (OGL)';
+const bgs625 = L.tileLayer.wms('https://ogc.bgs.ac.uk/cgi-bin/BGS_Bedrock_and_Superficial_Geology/wms', {layers:'GBR_BGS_625k_BLS', format:'image/png', transparent:true, version:'1.3.0', opacity:0.85, attribution:bgsAttr});
+const bgs50 = L.tileLayer.wms('https://map.bgs.ac.uk/arcgis/services/BGS_Detailed_Geology/MapServer/WMSServer', {layers:'BGS.50k.Bedrock', format:'image/png', transparent:true, version:'1.3.0', opacity:0.85, attribution:bgsAttr});
+const bgsBase625 = L.layerGroup([carto, bgs625]);
+const bgsBase50 = L.layerGroup([carto, bgs625, bgs50]);
+L.control.layers({'Esri topo':esriTopo, 'Carto light':carto, 'Esri imagery':esriImg,
+  'BGS geology 1:625k (bedrock, lithostratigraphy)':bgsBase625,
+  'BGS geology 1:625k + 1:50k (50k appears when zoomed in)':bgsBase50}, {}, {position:'topright'}).addTo(map);
 initUI();
 render();
 initSearch();

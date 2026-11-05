@@ -6,6 +6,9 @@ Pass, fail and untested are kept distinct: untested is not a fail.
 
 Open `index.html` in a browser (it needs internet access for the Leaflet library and map fonts).
 
+
+Base maps: Esri topo, Carto light, Esri imagery, and BGS geology (1:625k bedrock lithostratigraphy, optionally with 1:50k bedrock when zoomed in) served by the British Geological Survey WMS. Contains British Geological Survey materials © UKRI.
+
 ## Layers
 
 - L0–L9: baseline screen (Ba/Rb geochemistry, K-feldspar, zircon, facies, thermal maturity, distance, etc.).
