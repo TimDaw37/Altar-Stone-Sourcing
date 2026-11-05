@@ -27,6 +27,7 @@ The search box on the map accepts a map place or site name (for example "Fintona
 
 - BGS 625k Old Red Sandstone underlay (including the named Devonian red-bed groups of Northern Ireland and the Midland Valley), the Latheron–Niandt cool sliver (schematic) and an Irish ORS desk screen.
 - Tellus Northern Ireland stream-sediment Ba at or above 1025 ppm (502 samples): regional stream-sediment XRF, not rock, and not lithology-specific. Contains Geological Survey of Northern Ireland data, Open Government Licence v3.0 (https://www.opendatani.gov.uk/dataset/gsni-tellus-regional-stream-sediments).
+- Tellus Republic of Ireland stream-sediment Ba at or above 1025 ppm (354 samples, XRFS, survey blocks G1–G4), with each point flagged by whether it lies on GSI 1:500k Devonian continental red-bed facies (7 of the 354 do, five of them near Clew Bay). Contains Irish Public Sector Data (Geological Survey Ireland), licensed under CC BY 4.0 (https://data.gov.ie/dataset/tellus-geochemistry-stream-sediments).
 
 ## Files
 
@@ -34,6 +35,7 @@ The search box on the map accepts a map place or site name (for example "Fintona
 - `places-0/1/2.json`, `meta.json` – the same data split into plain JSON.
 - `ors_bgs_625k.js`, `ors_bgs_625k.geojson` – Old Red Sandstone underlay derived from the BGS Geology 625k dataset.
 - `tellus_ni_ba.js` – Tellus Northern Ireland stream-sediment samples with Ba at or above 1025 ppm.
+- `tellus_roi_ba.js` – Tellus Republic of Ireland stream-sediment samples with Ba at or above 1025 ppm.
 
 ## Main sources
 

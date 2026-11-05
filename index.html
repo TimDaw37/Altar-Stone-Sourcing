@@ -15,6 +15,7 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="ors_bgs_625k.js"></script>
 <script src="tellus_ni_ba.js"></script>
+<script src="tellus_roi_ba.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -138,7 +139,7 @@ table.matrix th:first-child, table.matrix td:first-child{text-align:left;font-fa
   <label class="legend" style="display:flex;gap:6px;align-items:center;cursor:pointer">
     <input type="checkbox" id="showtellus">
     <span class="swatch" style="background:#a98bd6"></span>
-    Tellus NI stream-sediment Ba &ge;1025 ppm (502 samples)
+    Tellus stream-sediment Ba &ge;1025 ppm (NI 502, ROI 354 samples)
   </label>
   <h2>Layers</h2>
   <div id="layers"></div>
@@ -193,7 +194,7 @@ table.matrix th:first-child, table.matrix td:first-child{text-align:left;font-fa
       but no ORS Sr data exist). The paper excludes the Southern Uplands on
       kaolinite (no low-grade metamorphism); the map has no Southern Uplands
       entry.
-      The orange underlay is BGS Geology 625k Old Red Sandstone (GB + NI), plus the continental Devonian red-bed groups that BGS 625k names by group rather than as ORS (Fintona, Shanmullagh, Cross Slieve; Stratheden, Arbuthnott–Garvock, Strathmore, Dunnottar–Crawton). SW England marine Devonian is not included; Republic
+      The orange underlay is BGS Geology 625k Old Red Sandstone (GB + NI), plus the continental Devonian red-bed groups that BGS 625k names by group rather than as ORS (Fintona, Shanmullagh, Cross Slieve; Stratheden, Arbuthnott–Garvock, Strathmore, Dunnottar–Crawton), and sandstone/conglomerate units of the undifferentiated Lower/Upper Devonian and Pridoli in Wales and the Welsh Borders. SW England and Devon marine Devonian is not included; Republic
       basins (Dingle, Munster, Curlew, Clew Bay) are dashed schematic.
       The purple dashed ribbon is the Hillier &amp; Marshall 1992 Latheron–Niandt
       cool sliver: schematic, not a cluster, not a source claim.
@@ -586,7 +587,7 @@ function draw(judged){
         style:{color:'#8b4513', weight:0.7, fillColor:'#c47b4a', fillOpacity:0.42},
         onEachFeature: function(feat, layer){
           const p = feat.properties || {};
-          layer.bindPopup('<b>'+(p.lex || 'Old Red Sandstone')+'</b><br>'+((p.age||'').trim()?(p.age.trim()+' · '):'')+(p.rcs||'')+(/OLD RED SANDSTONE/.test(p.lex||'')?'':'<br>Devonian red-bed group (BGS 625k does not label it &ldquo;Old Red Sandstone&rdquo;)')+
+          layer.bindPopup('<b>'+(p.lex || 'Old Red Sandstone')+'</b><br>'+((p.age||'').trim()?(p.age.trim()+' · '):'')+(p.rcs||'')+(/OLD RED SANDSTONE/.test(p.lex||'')?'':(/UNDIFFERENTIATED/.test(p.lex||'')?'<br>Included as ORS by region (Wales/Welsh Borders) and lithology; BGS 625k labels it undifferentiated':'<br>Devonian red-bed group (BGS 625k does not label it &ldquo;Old Red Sandstone&rdquo;)'))+
             '<br><i>BGS Geology 625k. Contains British Geological Survey materials © UKRI. OGL.</i>');
         }
       }).addTo(orsGroup);
@@ -638,6 +639,17 @@ function draw(judged){
       L.circleMarker([t[0], t[1]], {radius: ba >= 5000 ? 6 : 4, color:'#3b2f6b', weight:1, fillColor:fill, fillOpacity:0.9})
         .bindPopup('<b>Tellus NI stream sediment</b><br>Ba '+ba+' ppm, Rb '+t[3]+', Sr '+t[4]+', Cr '+t[5]+' ppm'+
           '<br><i>Regional stream sediment (XRF), not rock. Not lithology-specific; vein baryte and mineralisation can raise Ba. Contains GSNI data, OGL v3.</i>')
+        .addTo(overlayGroup);
+    });
+  }
+  if (document.getElementById('showtellus').checked && typeof TELLUS_ROI !== 'undefined'){
+    TELLUS_ROI.forEach(t => {
+      const ba = t[2], on = t[6]===1;
+      const fill = ba >= 5000 ? '#6b3fa0' : ba >= 2000 ? '#a98bd6' : '#d9c7f0';
+      L.circleMarker([t[0], t[1]], {radius: on ? 6 : 4, color: on ? '#b34700' : '#3b2f6b', weight: on ? 2.5 : 1, fillColor:fill, fillOpacity:0.9})
+        .bindPopup('<b>Tellus ROI stream sediment</b><br>Ba '+ba+' ppm, Rb '+(t[3]==null?'n/a':t[3])+', Sr '+(t[4]==null?'n/a':t[4])+', Cr '+(t[5]==null?'n/a':t[5])+' ppm'+
+          '<br>'+(on?'<b>On Devonian continental red-bed facies</b> (GSI 1:500k units 52&ndash;54)':'Not on Devonian red-bed facies (GSI 1:500k bedrock)')+
+          '<br><i>Regional stream sediment (XRFS), not rock; the map is a first-order screen. Contains Irish Public Sector Data (Geological Survey Ireland) licensed under CC BY 4.0.</i>')
         .addTo(overlayGroup);
     });
   }
