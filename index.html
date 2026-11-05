@@ -627,8 +627,13 @@ function draw(judged){
      .addTo(overlayGroup);
   }
   if (document.getElementById('showireland').checked){
+    ORS_BASINS.filter(b => b.name === 'Fintona').forEach(b => {
+      markerById['basin:' + b.name] = L.polygon(b.hull, {color:'#1f6f8b', weight:1.5, dashArray:'5 4', fillColor:'#cfe7ef', fillOpacity:0.15})
+        .bindPopup('<b>'+b.name+' (desk-screen outline)</b><br>'+b.note+'<br><i>Schematic box, not a surveyed outline. Not scored.</i>')
+        .bindTooltip(b.name, {sticky:true}).addTo(overlayGroup);
+    });
     IRISH_ORS.forEach(s => {
-      L.circleMarker([s.lat, s.lon], {
+      markerById['irish:' + s.name] = L.circleMarker([s.lat, s.lon], {
         radius:7, color:'#1f6f8b', weight:2, fillColor:'#cfe7ef', fillOpacity:1
       }).bindPopup('<b>'+s.name+'</b><br>'+linkify(s.pop))
         .bindTooltip(s.name, {sticky:true})
@@ -769,13 +774,13 @@ function buildSearchIndex(){
   const out = [];
   DATA.places.forEach(p => out.push({label:p.name, kind:p.kind === 'cluster' ? 'cluster' : 'site', lat:p.lat, lon:p.lon, id:p.id,
     extra:(p.ngr || '') + ' ' + p.id,
-    bounds: (p.hull && p.hull.length >= 3) ? p.hull : null}));
-  if (typeof IRISH_ORS !== 'undefined') IRISH_ORS.forEach(s => out.push({label:s.name, kind:'Irish ORS desk screen', lat:s.lat, lon:s.lon, extra:''}));
+    bounds: (p.hull && p.hull.length >= 3) ? p.hull : null, popup:'<b>'+p.name+'</b>'+(p.note ? '<br><i>'+p.note+'</i>' : '')}));
+  if (typeof IRISH_ORS !== 'undefined') IRISH_ORS.forEach(s => out.push({label:s.name, kind:'Irish ORS desk screen', lat:s.lat, lon:s.lon, extra:'', id:'irish:'+s.name, overlay:'showireland', popup:'<b>'+s.name+'</b><br>'+linkify(s.pop)}));
   if (typeof ORS_BASINS !== 'undefined') ORS_BASINS.forEach(b => {
     const la = b.hull.reduce((x, c) => x + c[0], 0) / b.hull.length, lo = b.hull.reduce((x, c) => x + c[1], 0) / b.hull.length;
-    out.push({label:b.name, kind:'basin', lat:la, lon:lo, bounds:b.hull, extra:''});
+    out.push({label:b.name, kind:'basin', lat:la, lon:lo, bounds:b.hull, extra:'', id:'basin:'+b.name, overlay:b.name === 'Fintona' ? 'showireland' : null, popup:'<b>'+b.name+'</b><br>'+b.note});
   });
-  out.push({label:'Latheron–Niandt cool sliver', kind:'schematic', lat:COOL_SLIVER.harbour[0], lon:COOL_SLIVER.harbour[1], bounds:COOL_SLIVER.hull, extra:'latheronwheel harbour'});
+  out.push({label:'Latheron–Niandt cool sliver', kind:'schematic', lat:COOL_SLIVER.harbour[0], lon:COOL_SLIVER.harbour[1], bounds:COOL_SLIVER.hull, extra:'latheronwheel harbour', overlay:'showsliver', popup:COOL_SLIVER.popup});
   return out;
 }
 function searchLocal(q){
@@ -801,7 +806,17 @@ function goToPlace(e){
   else map.setView([e.lat, e.lon], e.zoom || 11);
   L.circleMarker([e.lat, e.lon], {radius:16, color:'#c0392b', weight:3, fill:false})
     .bindTooltip(e.label, {permanent:true, direction:'right', offset:[14, 0]}).addTo(searchGroup);
-  if (e.id && markerById[e.id]) markerById[e.id].openPopup();
+  if (e.overlay){
+    const cb = document.getElementById(e.overlay);
+    if (cb && !cb.checked){ cb.checked = true; render(); }
+  }
+  if (e.id && !markerById[e.id] && DATA.places.some(p => p.id === e.id)){
+    const sf = document.getElementById('showfails');
+    if (sf && !sf.checked){ sf.checked = true; render(); }
+  }
+  const m = e.id ? markerById[e.id] : null;
+  if (m) m.openPopup();
+  else if (e.popup) L.popup({maxWidth:340}).setLatLng([e.lat, e.lon]).setContent(e.popup).openOn(map);
 }
 function initSearch(){
   const Ctl = L.Control.extend({
