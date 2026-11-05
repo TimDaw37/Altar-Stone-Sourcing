@@ -81,6 +81,8 @@ details{margin-top:10px}
 summary{cursor:pointer;font-family:var(--sans);font-size:11px;font-weight:500;color:var(--accent)}
 .path{font-family:var(--mono);font-size:10.5px;word-break:break-all;
   color:var(--ink2);display:block;line-height:1.35;margin:2px 0 5px}
+#references a,.srcset a,.leaflet-popup-content a{color:#1f5f8b;text-decoration:underline;text-underline-offset:2px}
+#references a:hover,.srcset a:hover,.leaflet-popup-content a:hover{color:#0d3d5c}
 .srcset{margin:9px 0;padding:7px 0;border-bottom:1px solid var(--rule);font-size:12px;line-height:1.4}
 .srcset b{font-size:12.5px;font-family:var(--serif);font-weight:600}
 table.matrix{border-collapse:collapse;font-family:var(--mono);font-size:10px;width:100%;margin:7px 0}
@@ -432,10 +434,20 @@ function initFieldRecs(){
   box.innerHTML = recs.length ? recs.map(r => `<li>${r}</li>`).join('') : '<li>none</li>';
 }
 
+function linkify(s){
+  return String(s).replace(/(https?:\/\/[^\s<>"')]+)|\bdoi:\s?(10\.\d{4,9}\/[^\s<>"')]+)/g, (m, url, doi) => {
+    let t = url || doi, tail = '';
+    const k = t.match(/[.,;:]+$/);
+    if (k){ tail = k[0]; t = t.slice(0, -tail.length); }
+    const href = url ? t : 'https://doi.org/' + t;
+    return '<a href="' + href + '" target="_blank" rel="noopener noreferrer">' + (url ? t : 'doi:' + t) + '</a>' + tail;
+  });
+}
+
 function initReferences(){
   const box = document.getElementById('references');
   if (!box) return;
-  box.innerHTML = (DATA.references || []).map(r => `<li>${r}</li>`).join('');
+  box.innerHTML = (DATA.references || []).map(r => `<li>${linkify(r)}</li>`).join('');
 }
 
 function initSources(){
@@ -452,9 +464,9 @@ function initSources(){
     <p class="legend">Published papers and public sources used in the diagnostic screen.</p>`;
   sets.forEach(set => {
     html += `<div class="srcset"><b>${set.id}. ${set.title}</b><br>`;
-    (set.preferred || []).forEach(p => { html += `<span class="path">★ ${p}</span>`; });
-    (set.also || []).forEach(p => { html += `<span class="path">${p}</span>`; });
-    if (set.supplies) html += `<span class="legend">${set.supplies}</span>`;
+    (set.preferred || []).forEach(p => { html += `<span class="path">★ ${linkify(p)}</span>`; });
+    (set.also || []).forEach(p => { html += `<span class="path">${linkify(p)}</span>`; });
+    if (set.supplies) html += `<span class="legend">${linkify(set.supplies)}</span>`;
     html += `</div>`;
   });
   html += `</details><details><summary>Diagnostic matrix</summary>
@@ -610,7 +622,7 @@ function draw(judged){
     if (j.status==='fail' && p.kind==='cluster' && (p.pct_ors||0)<5 && !showFails) return;
     const col = colour(j.status);
     const op = j.status==='fail' ? 0.22 : 0.55;
-    const paths = (p.source_paths||[]).map(x => '<span class="path">'+x+'</span>').join('') ? '<br><b>Sources</b> '+(p.source_paths||[]).map(x => '<span class="path">'+x+'</span>').join('') : '';
+    const paths = (p.source_paths||[]).map(x => '<span class="path">'+linkify(x)+'</span>').join('') ? '<br><b>Sources</b> '+(p.source_paths||[]).map(x => '<span class="path">'+linkify(x)+'</span>').join('') : '';
     const mx = p.matrix ? '<br>Matrix Th '+p.matrix.thermal.n+' · Ba '+p.matrix.ba.n+' · Zr '+p.matrix.zircon.n : '';
     const popup = `<b>${p.name}</b><br>${j.status.toUpperCase()}
       ${j.failed.length? '<br>fails '+j.failed.join(', '):''}
@@ -621,7 +633,7 @@ function draw(judged){
       ${p.sr_label? '<br>'+p.sr_label:''}
       ${p.note? '<br><i>'+p.note+'</i>':''}
       ${p.sr_note? '<br><i>'+p.sr_note+'</i>':''}
-      ${p.cite? '<br>'+p.cite:''}
+      ${p.cite? '<br>'+linkify(p.cite):''}
       ${paths}
       ${mx}`;
 
