@@ -12,6 +12,8 @@ Open `index.html` in a browser (it needs internet access for the Leaflet library
 - L10 Sr ceiling and L11 Sr/Ca ratio: analysis by Tim Daw, applied only where rock Sr has been measured.
 - U1 chrome spinel (CZi) and U2 illite/smectite expandability: from Pirrie et al. (2026). Off by default.
 
+Not scored: the Lanark Basin, the ORS between the Midland Valley and the Welsh Borders, Carboniferous sandstones such as the Clifton Rock, and the Sr–Nd result of Pirrie et al. (2026), which the paper leaves open or gives no comparison data for.
+
 Strict and relaxed modes, presets and group toggles are described in the "How to read this" panel and the Sources panel in the map.
 
 ## Files
