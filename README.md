@@ -21,7 +21,7 @@ Strict and relaxed modes, presets and group toggles are described in the "How to
 
 ## Finding places
 
-The search box on the map accepts a map place or site name (for example "Fintona" or "Sarclet"), an Ordnance Survey grid reference (for example HY229241), latitude and longitude (for example 51.18, -1.83), or a UK or Irish place name. Place names that are not on the map are looked up with OpenStreetMap Nominatim, so the text typed is sent to that service only in that case.
+The search box on the map accepts a map place or site name (for example "Fintona" or "Sarclet"), an Ordnance Survey grid reference (for example HY229241), an Irish Grid reference (one letter, for example H250604), latitude and longitude (for example 51.18, -1.83), or a UK or Irish place name. Place names that are not on the map are looked up with OpenStreetMap Nominatim, so the text typed is sent to that service only in that case.
 
 ## Optional overlays
 

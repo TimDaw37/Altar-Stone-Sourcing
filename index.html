@@ -236,7 +236,7 @@ const ORS_BASINS = [
   {name:'SW England marine Devonian', hull:[[51.22,-4.75],[50.38,-3.45],[50.18,-5.72],[51.02,-5.52],[51.22,-4.75]], note:'Devonian on the 625k map, not continental ORS. Screen cannot tell marine from continental.'},
   {name:'Fintona', hull:[[54.63,-7.58],[54.63,-6.72],[54.30,-6.72],[54.30,-7.58],[54.63,-7.58]], note:'Genuine-ORS Ba hit outside the Orcadian Basin in this screen (Pirrie et al. 2026 also list the Lanark Basin as a Ba-anomaly area). Untested on zircon, chrome spinel and clay.'},
   {name:'Curlew Mountains', hull:[[54.16,-8.62],[54.16,-8.12],[53.93,-8.12],[53.93,-8.62],[54.16,-8.62]], note:'Fintona analogue. Not in G-BASE.'},
-  {name:'Clew Bay', hull:[[53.96,-9.95],[53.96,-9.32],[53.68,-9.32],[53.68,-9.95],[53.96,-9.95]], note:'Conglomerate fans. Not in G-BASE.'},
+  {name:'Clew Bay', hull:[[53.96,-9.95],[53.96,-9.32],[53.68,-9.32],[53.68,-9.95],[53.96,-9.95]], note:'Conglomerate fans. Not in G-BASE. Palynology (Graham et al. 1983, Trans. R. Soc. Edinb. 73, 245–249): Islandeady Group Lower Devonian, Beltra Group Middle Devonian, Maam Formation Dinantian. Five Tellus ROI stream-sediment samples with Ba 1030–1936 ppm lie on GSI-mapped Devonian red-bed units here. No chrome spinel, zircon or clay data found in the literature checked; untested on the Pirrie et al. 2026 criteria.'},
   {name:'Dingle', hull:[[52.26,-10.52],[52.26,-9.88],[52.04,-9.88],[52.04,-10.52],[52.26,-10.52]], note:'Closed on detrital ages (Clarke et al. 2024).'},
   {name:'Munster Basin', hull:[[52.28,-10.25],[52.18,-7.48],[51.42,-7.55],[51.52,-10.15],[52.28,-10.25]], note:'Wrong zircon pattern (Fairey et al. 2024). No G-BASE.'}
 ];
@@ -708,19 +708,33 @@ function diamond(lat,lon){
 /* ---------- Location finder ---------- */
 function ngrToLatLon(ref){
   const s = String(ref).replace(/\s+/g,'').toUpperCase();
-  const m = s.match(/^([A-HJ-Z])([A-HJ-Z])(\d+)$/);
-  if (!m || m[3].length % 2) return null;
   const idx = c => c.charCodeAt(0) - 65 - (c > 'I' ? 1 : 0);
-  const l1 = idx(m[1]), l2 = idx(m[2]);
-  const e100 = ((l1 - 2) % 5 + 5) % 5 * 5 + (l2 % 5);
-  const n100 = (19 - Math.floor(l1 / 5) * 5) - Math.floor(l2 / 5);
-  const h = m[3].length / 2; if (h > 5) return null;
   const pad = x => (x + '00000').slice(0, 5);
-  const E = e100 * 100000 + Number(pad(m[3].slice(0, h)));
-  const N = n100 * 100000 + Number(pad(m[3].slice(h)));
-  if (E < 0 || E > 700000 || N < 0 || N > 1300000) return null;
-  const a = 6377563.396, b = 6356256.909, F0 = 0.9996012717, N0 = -100000, E0 = 400000;
-  const p0 = 49 * Math.PI / 180, l0 = -2 * Math.PI / 180;
+  let E, N, P, m;
+  if ((m = s.match(/^([A-HJ-Z])([A-HJ-Z])(\d+)$/))){
+    // Great Britain: two letters, OSGB36 National Grid
+    if (m[3].length % 2) return null;
+    const l1 = idx(m[1]), l2 = idx(m[2]);
+    const e100 = ((l1 - 2) % 5 + 5) % 5 * 5 + (l2 % 5);
+    const n100 = (19 - Math.floor(l1 / 5) * 5) - Math.floor(l2 / 5);
+    const h = m[3].length / 2; if (h > 5) return null;
+    E = e100 * 100000 + Number(pad(m[3].slice(0, h)));
+    N = n100 * 100000 + Number(pad(m[3].slice(h)));
+    if (E < 0 || E > 700000 || N < 0 || N > 1300000) return null;
+    P = {a:6377563.396, b:6356256.909, F0:0.9996012717, N0:-100000, E0:400000, p0:49, l0:-2,
+         tx:446.448, ty:-125.157, tz:542.060, s:-20.4894e-6, rx:0.1502, ry:0.2470, rz:0.8421};
+  } else if ((m = s.match(/^([A-HJ-Z])(\d+)$/))){
+    // Ireland: one letter, Irish Grid (TM65, EPSG:29902)
+    if (m[2].length % 2) return null;
+    const l1 = idx(m[1]);
+    const h = m[2].length / 2; if (h > 5) return null;
+    E = (l1 % 5) * 100000 + Number(pad(m[2].slice(0, h)));
+    N = (4 - Math.floor(l1 / 5)) * 100000 + Number(pad(m[2].slice(h)));
+    P = {a:6377340.189, b:6356034.447, F0:1.000035, N0:250000, E0:200000, p0:53.5, l0:-8,
+         tx:482.5, ty:-130.6, tz:564.6, s:8.15e-6, rx:-1.042, ry:-0.214, rz:-0.631};
+  } else return null;
+  const a = P.a, b = P.b, F0 = P.F0, N0 = P.N0, E0 = P.E0;
+  const p0 = P.p0 * Math.PI / 180, l0 = P.l0 * Math.PI / 180;
   const e2 = 1 - b * b / (a * a), n = (a - b) / (a + b), n2 = n * n, n3 = n2 * n;
   let p = p0, M = 0;
   do {
@@ -730,7 +744,7 @@ function ngrToLatLon(ref){
     const Mc = (15 / 8 * n2 + 15 / 8 * n3) * Math.sin(2 * (p - p0)) * Math.cos(2 * (p + p0));
     const Md = 35 / 24 * n3 * Math.sin(3 * (p - p0)) * Math.cos(3 * (p + p0));
     M = b * F0 * (Ma - Mb + Mc - Md);
-  } while (N - N0 - M >= 0.00001);
+  } while (Math.abs(N - N0 - M) >= 0.00001);
   const sn = Math.sin(p), cs = Math.cos(p), tn = Math.tan(p);
   const nu = a * F0 / Math.sqrt(1 - e2 * sn * sn);
   const rho = a * F0 * (1 - e2) / Math.pow(1 - e2 * sn * sn, 1.5);
@@ -747,13 +761,13 @@ function ngrToLatLon(ref){
   const dE = E - E0;
   const phi = p - VII * dE ** 2 + VIII * dE ** 4 - IX * dE ** 6;
   const lam = l0 + X * dE - XI * dE ** 3 + XII * dE ** 5 - XIIA * dE ** 7;
-  // OSGB36 (Airy 1830) -> WGS84 Helmert
+  // local datum (OSGB36 or TM65) -> WGS84 Helmert
   const sinP = Math.sin(phi), cosP = Math.cos(phi);
   const nuA = a / Math.sqrt(1 - e2 * sinP * sinP);
   const x1 = nuA * cosP * Math.cos(lam), y1 = nuA * cosP * Math.sin(lam), z1 = (1 - e2) * nuA * sinP;
   const sec2rad = Math.PI / 180 / 3600;
-  const tx = 446.448, ty = -125.157, tz = 542.060, s1 = 1 - 20.4894e-6;
-  const rx = 0.1502 * sec2rad, ry = 0.2470 * sec2rad, rz = 0.8421 * sec2rad;
+  const tx = P.tx, ty = P.ty, tz = P.tz, s1 = 1 + P.s;
+  const rx = P.rx * sec2rad, ry = P.ry * sec2rad, rz = P.rz * sec2rad;
   const x2 = tx + x1 * s1 - y1 * rz + z1 * ry;
   const y2 = ty + x1 * rz + y1 * s1 - z1 * rx;
   const z2 = tz - x1 * ry + y1 * rx + z1 * s1;
@@ -858,7 +872,7 @@ function initSearch(){
       if (my !== seq) return;
       const list = j.map(x => ({label:x.display_name.split(', ').slice(0, 3).join(', '), kind:'OpenStreetMap', lat:Number(x.lat), lon:Number(x.lon), zoom:12,
         bounds: x.boundingbox ? [[Number(x.boundingbox[0]), Number(x.boundingbox[2])], [Number(x.boundingbox[1]), Number(x.boundingbox[2])], [Number(x.boundingbox[1]), Number(x.boundingbox[3])]] : null}));
-      show(list, list.length ? 'Place-name search uses OpenStreetMap Nominatim.' : 'No match. Try a grid reference (e.g. HY229241) or lat, lon.');
+      show(list, list.length ? 'Place-name search uses OpenStreetMap Nominatim.' : 'No match. Try a grid reference (e.g. HY229241 or Irish H250604) or lat, lon.');
     } catch (err){
       show([], 'Online place search unavailable. Map places, grid references and lat, lon still work.');
     }
