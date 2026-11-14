@@ -13,6 +13,7 @@
 <title>Altar Stone diagnostic toggle map</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://timdaw37.github.io/gb-relief/gbrelief.js"></script>
 <script src="ors_bgs_625k.js"></script>
 <script src="tellus_ni_ba.js"></script>
 <script src="tellus_roi_ba.js"></script>
@@ -907,7 +908,13 @@ const bgs625 = L.tileLayer.wms('https://ogc.bgs.ac.uk/cgi-bin/BGS_Bedrock_and_Su
 const bgs50 = L.tileLayer.wms('https://map.bgs.ac.uk/arcgis/services/BGS_Detailed_Geology/MapServer/WMSServer', {layers:'BGS.50k.Bedrock', format:'image/png', transparent:true, version:'1.3.0', opacity:0.85, attribution:bgsAttr});
 const bgsBase625 = L.layerGroup([carto, bgs625]);
 const bgsBase50 = L.layerGroup([carto, bgs625, bgs50]);
+// GB Relief (open LiDAR + GEM-15, https://timdaw37.github.io/gb-relief/); Great Britain only, so Esri light grey sits beneath for Ireland and the sea
+// own pane (z 250) keeps the relief above the Esri grey whatever z-index the layer control assigns, and below the ORS pane (350)
+map.createPane('reliefPane'); map.getPane('reliefPane').style.zIndex = 250; map.getPane('reliefPane').style.pointerEvents = 'none';
+const gbReliefBase = L.layerGroup([carto, GBRelief.layer('relief', {pane:'reliefPane'})]);
+const gbGreyBase = L.layerGroup([carto, GBRelief.layer('grey', {pane:'reliefPane'})]);
 L.control.layers({'Esri topo':esriTopo, 'Esri light grey':carto, 'Esri imagery':esriImg,
+  'GB relief, LiDAR (Great Britain only)':gbReliefBase, 'GB hillshade, grey (Great Britain only)':gbGreyBase,
   'BGS geology 1:625k (bedrock, lithostratigraphy)':bgsBase625,
   'BGS geology 1:625k + 1:50k (50k appears when zoomed in)':bgsBase50}, {}, {position:'topright'}).addTo(map);
 initUI();
