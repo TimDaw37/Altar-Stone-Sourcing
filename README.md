@@ -7,7 +7,7 @@ Pass, fail and untested are kept distinct: untested is not a fail.
 Open `index.html` in a browser (it needs internet access for the Leaflet library and map fonts).
 
 
-Base maps: Esri topo, Esri light grey, Esri imagery, [GB Relief](https://timdaw37.github.io/gb-relief/) shaded relief and grey hillshade from open LiDAR (Great Britain only, over Esri light grey), and BGS geology (1:625k bedrock lithostratigraphy, optionally with 1:50k bedrock when zoomed in) served by the British Geological Survey WMS. Contains British Geological Survey materials © UKRI.
+Base maps: Esri topo, Esri light grey, Esri imagery, [GB Relief](https://timdaw37.github.io/gb-relief/) shaded relief with sea floor, and grey hillshade, for Britain and Ireland (open LiDAR in Great Britain, GEM-15 in Ireland, EMODnet offshore; over Esri light grey), and BGS geology (1:625k bedrock lithostratigraphy, optionally with 1:50k bedrock when zoomed in) served by the British Geological Survey WMS. Contains British Geological Survey materials © UKRI.
 
 ## Layers
 
